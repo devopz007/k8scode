@@ -9,7 +9,7 @@ node {
 
     stage('Build image') {
   
-       app = docker.build("devopz007/test")
+       app = docker.build("devopzdocker007/test")
     }
 
     stage('Test image') {
@@ -22,18 +22,13 @@ node {
 
     stage('Push image') {
         
-        docker.withRegistry('', 'dockerhub') {
+        docker.withRegistry('https://registry.hub.docker.com', 'dockerhub') {
             app.push("${env.BUILD_NUMBER}")
         }
     }
     
-    stage ('Updating the Manifest file'){
-        withDockerRegistry([ credentialsId: "dockerhub", url: "" ]) {
-        echo "triggering updatemanifestjob"
-        build job: 'updatemanifest', parameters: [string(name: 'DOCKERTAG', value: env.BUILD_NUMBER)]
-        }
-    }
     stage('Trigger ManifestUpdate') {
-                
+                echo "triggering updatemanifestjob"
+                build job: 'updatemanifest', parameters: [string(name: 'DOCKERTAG', value: env.BUILD_NUMBER)]
         }
 }
